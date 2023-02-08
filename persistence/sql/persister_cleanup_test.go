@@ -14,7 +14,6 @@ import (
 )
 
 func TestPersister_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	ctx := context.Background()
@@ -30,7 +29,6 @@ func TestPersister_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Continuity_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
@@ -47,7 +45,6 @@ func TestPersister_Continuity_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Login_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
@@ -64,7 +61,6 @@ func TestPersister_Login_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Recovery_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
@@ -81,7 +77,6 @@ func TestPersister_Recovery_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Registration_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
@@ -98,7 +93,6 @@ func TestPersister_Registration_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Session_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
@@ -115,7 +109,6 @@ func TestPersister_Session_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Settings_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
@@ -132,7 +125,6 @@ func TestPersister_Settings_Cleanup(t *testing.T) {
 }
 
 func TestPersister_Verification_Cleanup(t *testing.T) {
-	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	p := reg.Persister()
 	currentTime := time.Now()
