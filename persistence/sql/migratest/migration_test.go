@@ -82,16 +82,25 @@ func TestMigrations_SQLite(t *testing.T) {
 }
 
 func TestMigrations_Postgres(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
 	t.Parallel()
 	testDatabase(t, "postgres", dockertest.ConnectToTestPostgreSQLPop(t))
 }
 
 func TestMigrations_Mysql(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
 	t.Parallel()
 	testDatabase(t, "mysql", dockertest.ConnectToTestMySQLPop(t))
 }
 
 func TestMigrations_Cockroach(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
 	t.Parallel()
 	testDatabase(t, "cockroach", dockertest.ConnectToTestCockroachDBPop(t))
 }
