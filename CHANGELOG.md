@@ -5,7 +5,7 @@
 
 **Table of Contents**
 
-- [ (2023-02-08)](#2023-02-08)
+- [ (2023-02-13)](#2023-02-13)
   - [Bug Fixes](#bug-fixes)
   - [Features](#features)
 - [0.11.1 (2023-01-14)](#0111-2023-01-14)
@@ -291,7 +291,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# [](https://github.com/ory/kratos/compare/v0.11.1...v) (2023-02-08)
+# [](https://github.com/ory/kratos/compare/v0.11.1...v) (2023-02-13)
 
 ### Bug Fixes
 
@@ -304,6 +304,14 @@
   ([39fa31f](https://github.com/ory/kratos/commit/39fa31f85deb3f015aa0f1b30b4a17e4b51d461b))
 - Identity.CopyWithoutCredentials
   ([989c99d](https://github.com/ory/kratos/commit/989c99d6a32e02759a8a7a07606a90832afec460))
+- Issuer missing from netid claims
+  ([#3080](https://github.com/ory/kratos/issues/3080))
+  ([dec7cbc](https://github.com/ory/kratos/commit/dec7cbc4286cbbe2d787b1f8998ee57054d7c95b)):
+
+  The NetID provider omits the issuer claim in the userinfo response. To resolve
+  this issue, the ID token returned by NetID is now validated and its `sub` and
+  `iss` values are used.
+
 - Lint errors and unused code
   ([ae49ef0](https://github.com/ory/kratos/commit/ae49ef04ed24c23406a5639d34c2e81ab0130c75))
 - Make session AAL satisfaction check resilient against a nil identity in the
@@ -312,10 +320,32 @@
 
   Also fix tracing.
 
+- Nolint comment
+  ([93e6501](https://github.com/ory/kratos/commit/93e6501c63a253336c081f156ada58458b83ef92))
 - Orphaned webhook spans
   ([a7f9414](https://github.com/ory/kratos/commit/a7f9414460eb214a8f2b2ff96a2b6b303721f806))
 - Remove network omit flag ([#3066](https://github.com/ory/kratos/issues/3066))
   ([c629b72](https://github.com/ory/kratos/commit/c629b72be42001e3e1671d61cc8348373b686844))
+- Report correct errors for json schema validation
+  ([#3085](https://github.com/ory/kratos/issues/3085))
+  ([9477ea4](https://github.com/ory/kratos/commit/9477ea4a7bde6efa73ed94f61c2d4ed66fd43a08)):
+
+  - Implemented the translation of `jsonschema.ValidationError` to errors codes
+    documented
+    [here](https://www.ory.sh/docs/kratos/concepts/ui-user-interface#machine-readable-format)
+  - Added missing error codes for relevant schema errors | Validation | Name |
+    ID | | ------------------ | ------------------------------- | ------- | |
+    `maxLength` | ErrorValidationMaxLength | 4000017 | | `minimum` |
+    ErrorValidationMinimum. | 4000018 | | `exclusiveMinimum` |
+    ErrorValidationExclusiveMinimum | 4000019 | | `maximum` |
+    ErrorValidationMaximum | 4000020 | | `exclusiveMaximum` |
+    ErrorValidationExclusiveMaximum | 4000021 | | `multipleOf` |
+    ErrorValidationMultipleOf | 4000022 | | `maxItems` | ErrorValidationMaxItems
+    | 4000023 | | `minItems` | ErrorValidationMinItems | 4000024 | |
+    `uniqueItems` | ErrorValidationUniqueItems | 4000025 | | `type` |
+    ErrorValidationWrongType | 4000026 |
+  - Updated e2e tests to check these IDs explicitly
+
 - Set DB connection max idle time
   ([8d4762c](https://github.com/ory/kratos/commit/8d4762c1bffad14c94ac69575e488fc67d3f5dde))
 
@@ -335,11 +365,22 @@
   closes [#2422](https://github.com/ory/kratos/issues/2422)
 - Don't pre-generate UUIDs for transient objects
   ([e17f307](https://github.com/ory/kratos/commit/e17f307732f8ced34727d5f3a70929866a0595e0))
+- Improve tracing span naming in hooks
+  ([bf828d3](https://github.com/ory/kratos/commit/bf828d3f5d56a963529e98958f4039f0dc569979))
+- Let DB generate ID for session devices
+  ([62402c7](https://github.com/ory/kratos/commit/62402c7bed3c57ef5b957572e4b84f56d9c530ae))
 - Parallelize get identity and session calls
   ([#3023](https://github.com/ory/kratos/issues/3023))
   ([6393519](https://github.com/ory/kratos/commit/6393519977bc3d804673b5669166e07c561f1c79))
 - Return hydra error messages
   ([b3d037b](https://github.com/ory/kratos/commit/b3d037b33b248f1873f09d641e5d61376bcfde80))
+- Social sign in via linkedin
+  ([#3079](https://github.com/ory/kratos/issues/3079))
+  ([5de6bf4](https://github.com/ory/kratos/commit/5de6bf46aba6c13f927ef1c4c425322a34063ca9)),
+  closes [#2856](https://github.com/ory/kratos/issues/2856):
+
+  Adds LinkedIn as a social sign in provider.
+
 - Webhooks that update identities
   ([2cbee3e](https://github.com/ory/kratos/commit/2cbee3e8eea6bac376faf9382bf5b15acb732f03)),
   closes [#2161](https://github.com/ory/kratos/issues/2161):
