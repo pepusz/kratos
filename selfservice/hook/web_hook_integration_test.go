@@ -224,7 +224,9 @@ func TestWebHooks(t *testing.T) {
 			},
 		},
 	} {
+		tc := tc
 		t.Run("uc="+tc.uc, func(t *testing.T) {
+			t.Parallel()
 			for _, auth := range []struct {
 				uc               string
 				createAuthConfig func() string
@@ -565,7 +567,9 @@ func TestWebHooks(t *testing.T) {
 			expectedError: nil,
 		},
 	} {
+		tc := tc
 		t.Run("uc="+tc.uc, func(t *testing.T) {
+			t.Parallel()
 			for _, method := range []string{"CONNECT", "DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT", "TRACE"} {
 				t.Run("method="+method, func(t *testing.T) {
 					f := tc.createFlow()
@@ -610,6 +614,7 @@ func TestWebHooks(t *testing.T) {
 	}
 
 	t.Run("update identity fields", func(t *testing.T) {
+		t.Parallel()
 		run := func(t *testing.T, id identity.Identity, responseCode int, response []byte) *identity.WithCredentialsAndAdminMetadataInJSON {
 			f := &registration.Flow{ID: x.NewUUID()}
 			req := &http.Request{
@@ -694,6 +699,7 @@ func TestWebHooks(t *testing.T) {
 	})
 
 	t.Run("must error when config is erroneous", func(t *testing.T) {
+		t.Parallel()
 		req := &http.Request{
 			Header: map[string][]string{"Some-Header": {"Some-Value"}},
 			Host:   "www.ory.sh",
@@ -711,6 +717,7 @@ func TestWebHooks(t *testing.T) {
 	})
 
 	t.Run("cannot have parse and ignore both set", func(t *testing.T) {
+		t.Parallel()
 		ts := newServer(webHookHttpCodeEndPoint(200))
 		req := &http.Request{
 			Header: map[string][]string{"Some-Header": {"Some-Value"}},
@@ -729,6 +736,7 @@ func TestWebHooks(t *testing.T) {
 	})
 
 	t.Run("must error when template is erroneous", func(t *testing.T) {
+		t.Parallel()
 		ts := newServer(webHookHttpCodeEndPoint(200))
 		req := &http.Request{
 			Header: map[string][]string{"Some-Header": {"Some-Value"}},
@@ -750,6 +758,7 @@ func TestWebHooks(t *testing.T) {
 	})
 
 	t.Run("must not make request", func(t *testing.T) {
+		t.Parallel()
 		req := &http.Request{
 			Header: map[string][]string{"Some-Header": {"Some-Value"}},
 			Host:   "www.ory.sh",
@@ -779,6 +788,7 @@ func TestWebHooks(t *testing.T) {
 	}
 
 	t.Run("ignores the response and is async", func(t *testing.T) {
+		t.Parallel()
 		var wg sync.WaitGroup
 		wg.Add(1)
 		waitTime := time.Millisecond * 100
@@ -802,12 +812,13 @@ func TestWebHooks(t *testing.T) {
 		start := time.Now()
 		err := wh.ExecuteLoginPreHook(nil, req, f)
 		assert.NoError(t, err)
-		assert.True(t, time.Since(start) < waitTime)
+		assert.Less(t, time.Since(start), waitTime)
 
 		wg.Wait()
 	})
 
 	t.Run("does not error on 500 request with retry", func(t *testing.T) {
+		t.Parallel()
 		// This test essentially ensures that we do not regress on the bug we had where 500 status code
 		// would cause a retry, but because the body was incorrectly set we ended up with a ContentLength
 		// error.
@@ -851,7 +862,9 @@ func TestWebHooks(t *testing.T) {
 		{500, false},
 		{599, false},
 	} {
+		tc := tc
 		t.Run("Must"+boolToString(tc.mustSuccess)+" error when end point is returning "+strconv.Itoa(tc.code), func(t *testing.T) {
+			t.Parallel()
 			ts := newServer(webHookHttpCodeEndPoint(tc.code))
 			req := &http.Request{
 				Header: map[string][]string{"Some-Header": {"Some-Value"}},
@@ -879,6 +892,7 @@ func TestWebHooks(t *testing.T) {
 }
 
 func TestDisallowPrivateIPRanges(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	conf, reg := internal.NewFastRegistryWithMocks(t)
 	conf.MustSet(ctx, config.ViperKeyClientHTTPNoPrivateIPRanges, true)
@@ -903,6 +917,7 @@ func TestDisallowPrivateIPRanges(t *testing.T) {
 	f := &login.Flow{ID: x.NewUUID()}
 
 	t.Run("not allowed to call url", func(t *testing.T) {
+		t.Parallel()
 		wh := hook.NewWebHook(&whDeps, json.RawMessage(`{
   "url": "https://localhost:1234/",
   "method": "GET",
@@ -914,6 +929,7 @@ func TestDisallowPrivateIPRanges(t *testing.T) {
 	})
 
 	t.Run("allowed to call exempt url", func(t *testing.T) {
+		t.Parallel()
 		wh := hook.NewWebHook(&whDeps, json.RawMessage(`{
   "url": "http://localhost/exception",
   "method": "GET",
@@ -925,6 +941,7 @@ func TestDisallowPrivateIPRanges(t *testing.T) {
 	})
 
 	t.Run("not allowed to load from source", func(t *testing.T) {
+		t.Parallel()
 		req := &http.Request{
 			Header: map[string][]string{"Some-Header": {"Some-Value"}},
 			Host:   "www.ory.sh",
@@ -946,6 +963,7 @@ func TestDisallowPrivateIPRanges(t *testing.T) {
 }
 
 func TestAsyncWebhook(t *testing.T) {
+	t.Parallel()
 	_, reg := internal.NewFastRegistryWithMocks(t)
 	logger := logrusx.New("kratos", "test")
 	logHook := new(test.Hook)
