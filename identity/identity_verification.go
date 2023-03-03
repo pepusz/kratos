@@ -84,8 +84,10 @@ type VerifiableAddress struct {
 
 	// IdentityID is a helper struct field for gobuffalo.pop.
 	IdentityID uuid.UUID `json:"-" faker:"-" db:"identity_id"`
-	// CreatedAt is a helper struct field for gobuffalo.pop.
-	NID uuid.UUID `json:"-"  faker:"-" db:"nid"`
+	NID        uuid.UUID `json:"-"  faker:"-" db:"nid"`
+
+	// VerificationFlowID is the ID of the latest, currently active verification flow for this address
+	VerificationFlowID uuid.NullUUID `json:"verification_flow_id" db:"verification_flow_id"`
 }
 
 func (v VerifiableAddressType) HTMLFormInputType() string {

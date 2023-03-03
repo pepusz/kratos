@@ -7,6 +7,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gofrs/uuid"
 	"github.com/ory/kratos/driver/config"
 	"github.com/ory/kratos/identity"
 	"github.com/ory/kratos/selfservice/flow"
@@ -27,6 +28,8 @@ type (
 		x.CSRFTokenGeneratorProvider
 		verification.StrategyProvider
 		verification.FlowPersistenceProvider
+		identity.PrivilegedPoolProvider
+		x.WriterProvider
 	}
 	Verifier struct {
 		r verifierDependencies
@@ -37,19 +40,19 @@ func NewVerifier(r verifierDependencies) *Verifier {
 	return &Verifier{r: r}
 }
 
-func (e *Verifier) ExecutePostRegistrationPostPersistHook(_ http.ResponseWriter, r *http.Request, f *registration.Flow, s *session.Session) error {
+func (e *Verifier) ExecutePostRegistrationPostPersistHook(w http.ResponseWriter, r *http.Request, f *registration.Flow, s *session.Session) error {
 	return otelx.WithSpan(r.Context(), "selfservice.hook.Verifier.ExecutePostRegistrationPostPersistHook", func(ctx context.Context) error {
-		return e.do(r.WithContext(ctx), s.Identity, f)
+		return e.do(w, r.WithContext(ctx), s.Identity, f)
 	})
 }
 
 func (e *Verifier) ExecuteSettingsPostPersistHook(w http.ResponseWriter, r *http.Request, a *settings.Flow, i *identity.Identity) error {
 	return otelx.WithSpan(r.Context(), "selfservice.hook.Verifier.ExecuteSettingsPostPersistHook", func(ctx context.Context) error {
-		return e.do(r.WithContext(ctx), i, a)
+		return e.do(w, r.WithContext(ctx), i, a)
 	})
 }
 
-func (e *Verifier) do(r *http.Request, i *identity.Identity, f flow.Flow) error {
+func (e *Verifier) do(w http.ResponseWriter, r *http.Request, i *identity.Identity, f flow.Flow) error {
 	// This is called after the identity has been created so we can safely assume that all addresses are available
 	// already.
 
@@ -80,6 +83,14 @@ func (e *Verifier) do(r *http.Request, i *identity.Identity, f flow.Flow) error 
 			return err
 		}
 
+		address.VerificationFlowID = uuid.NullUUID{
+			UUID:  verificationFlow.ID,
+			Valid: true,
+		}
+
+		if err := e.r.PrivilegedIdentityPool().UpdateVerifiableAddress(r.Context(), address); err != nil {
+			return err
+		}
 	}
 	return nil
 }

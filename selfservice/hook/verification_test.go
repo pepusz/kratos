@@ -5,8 +5,10 @@ package hook_test
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -130,4 +132,34 @@ func TestVerifier(t *testing.T) {
 			assert.Len(t, messages, 0)
 		})
 	}
+}
+
+func Test(t *testing.T) {
+	path, err := os.Getwd()
+	require.NoError(t, err)
+	t.Logf("%v", path)
+	ctx := context.Background()
+	r := &http.Request{URL: urlx.ParseOrPanic("https://www.ory.sh/")}
+	conf, reg := internal.NewFastRegistryWithMocks(t)
+	testhelpers.SetDefaultIdentitySchema(conf, "file://stub/verification.json")
+	h := hook.NewVerifier(reg)
+	i := identity.NewIdentity(config.DefaultIdentityTraitsSchemaID)
+	i.Traits = identity.Traits(`{"email": "foo@ory.sh"}`)
+	require.NoError(t, reg.IdentityManager().ValidateIdentity(ctx, i, new(identity.ManagerOptions)))
+	require.NoError(t, reg.IdentityManager().Create(ctx, i))
+	require.NoError(t, identity.UpgradeCredentials(i))
+	assert.NotEmpty(t, i.VerifiableAddresses)
+
+	f, err := registration.NewFlow(conf, time.Hour, x.FakeCSRFToken, r, flow.TypeAPI)
+	require.NoError(t, err)
+	s, err := session.NewActiveSession(r, i, conf, time.Now().UTC(), identity.CredentialsTypePassword, identity.AuthenticatorAssuranceLevel1)
+	require.NoError(t, err)
+
+	require.NoError(t, h.ExecutePostRegistrationPostPersistHook(httptest.NewRecorder(), r, f, s))
+
+	ui, err := reg.PrivilegedIdentityPool().GetIdentity(ctx, i.ID, identity.ExpandEverything)
+	require.NoError(t, err)
+	rrr, err := json.MarshalIndent(ui, "", "  ")
+	require.NoError(t, err)
+	t.Logf("%+v", string(rrr))
 }
