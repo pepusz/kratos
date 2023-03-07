@@ -195,7 +195,7 @@ context("Social Sign Up Successes", () => {
         cy.logout()
       })
 
-      it.only("oidc registration with duplicate identifier should return new login flow with duplicate error", () => {
+      it("oidc registration with duplicate identifier should return new login flow with duplicate error", () => {
         cy.visit(registration)
 
         const email = gen.email()
